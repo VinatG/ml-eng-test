@@ -32,7 +32,7 @@ WALL_COLOR = (0, 0, 255)  # Red
 
 # Reading the model
 model_path = "detector_model_scripts/checkpoints/best.pt"
-device = torch.device('cpu') #("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = create_segmentation_model(len(CLASSES))
 model.load_state_dict(torch.load(model_path, map_location = device))
 model.to(device)
@@ -62,22 +62,22 @@ def draw_boxes(image, boxes, labels, class_type):
 
 # Function to add a horizontally stacked legend for the rooms class as done in visualize.py script for the user to understand better.
 def add_legend(image): 
-    h, _, _ = image.shape  
-    legend_width = 400  # Legend width
+    h, w, _ = image.shape  
+    legend_width = int(0.2 * w)  # Setting the legend width as 20% of the image width
     legend = np.ones((h, legend_width, 3), dtype = np.uint8) * 255  
 
-    font_scale = 1.5  
-    y_offset = 80  
-    box_height = 40  
-    box_width = 40  
-    
-    # Add class names and colors from the CLASSES list
-    for idx, (label, color) in enumerate(ROOM_COLORS.items()): # Using the Room Colors dictionary
-        class_name = CLASSES[label]  
-        y_pos = 60 + idx * y_offset
-        cv2.putText(legend, f"{class_name}", (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 0), 2)
-        cv2.rectangle(legend, (300, y_pos - box_height // 2), (300 + box_width, y_pos + box_height // 2), color, -1)
-        
+    font_scale = h / 1500  
+    y_offset = int(h / 25)  # Space between legend items
+    box_height = int(h / 40)  # height for the color box
+    box_width = int(legend_width / 5)  # width for the color box
+
+    # Class names and colors from the ROOM_COLORS list
+    for idx, (label, color) in enumerate(ROOM_COLORS.items()):  # Using the Room Colors dictionary
+        class_name = CLASSES[label]
+        y_pos = 40 + idx * y_offset 
+        cv2.putText(legend, f"{class_name}", (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 0), 1) 
+        cv2.rectangle(legend, (legend_width - box_width - 10, y_pos - box_height // 2), (legend_width - 10, y_pos + box_height // 2), color, -1)
+
     # Horizontally stack the legend next to the image
     image_with_legend = np.hstack((image, legend))
     
@@ -85,12 +85,17 @@ def add_legend(image):
 
 # Function to process the image and run model inference
 def run_inference(image: Image.Image, class_type: str):
+    global device
     image_np = np.array(image)
     image_np_bgr = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
     image_tensor = torch.from_numpy(image_np).permute(2, 0, 1).unsqueeze(0).float().to(device)
     
     with torch.no_grad():
-        result = model(image_tensor)[0]
+        try:
+            result = model(image_tensor)[0]
+        except:
+            device = torch.device("cpu")
+            model.to(device)
 
     # Extract boxes, labels, and scores from the predictions
     boxes = result['boxes'].cpu().numpy()

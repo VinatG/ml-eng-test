@@ -8,9 +8,10 @@ This test evaluates your practical skills in applying advanced computer vision t
 Good luck!
 
 ## Approach
-A Mask R-CNN model was trained on a partial CubiCasa5k dataset for 20 epochs. The API has been implemented using FastAPI for seamless inference of room and wall detection.
-
+A Mask R-CNN model was trained on a partial CubiCasa5k dataset for 20 epochs. The CubiCasa5k dataset has annotations for 12 classes: "Background", "Outdoor", "Wall", "Kitchen", "Living Room", "Bed Room", "Bath", "Entry", "Railing", "Storage", "Garage", and "Undefined". We have ignored the "Background" class while training.
 For more details about the training process and approach, please refer to the [report.pdf](./report.pdf)  file available in this repository.
+
+The API has been implemented using FastAPI for seamless inference of room and wall detection.
 
 ## Installation
 

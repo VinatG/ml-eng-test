@@ -13,22 +13,22 @@ from torchvision.ops import nms
 from detector_model_scripts.model import create_segmentation_model
 
 # Classes in connsideration
-CLASSES = ["Background", "Outdoor", "Wall", "Kitchen", "Living Room", "Bed Room", "Bath", "Entry", "Railing", "Storage", "Garage", "Undefined"]
+CLASSES = ["Background", "Wall" ,"Kitchen", "Living Room", "Bed Room", "Bath", "Entry", "Railing", "Storage", "Garage", "Undefined"]
 
-# Allotting a color to each class
+# Defining the class names and colors for the sub_classes of the rooms class
 ROOM_COLORS = {
-    1: (153, 255, 255),  # Light Yellow (Kitchen)
-    3: (0, 128, 128),    # Olive Green (Living Room)
-    4: (128, 128, 128),  # Gray (Bed Room)
-    5: (128, 128, 240),  # Light Coral (Bath)
-    6: (230, 216, 173),  # Light Blue (Entry)
-    7: (193, 182, 255),  # Light Pink (Railing)
-    8: (0, 165, 255),    # Light Orange (Storage)
-    9: (204, 209, 72),   # Light Aqua (Garage)
-    10: (144, 238, 144), # Light Green (Undefined)
-    11: (185, 218, 255)  # Peach (Outdoor)
+    #1: (255, 0, 0),      # Bright Red
+    2: (255, 165, 0),      # Orange
+    3: (0, 0, 255),      # Bright Blue
+    4: (255, 255, 0),    # Yellow (Flashy but distinct)
+    5: (255, 0, 255),     # Magenta
+    6: (255, 105, 180),  # Hot Pink
+    7: (0, 255, 255),    # Aqua
+    8: (128, 0, 128),    # Purple
+    9: (240, 230, 140),  # Khaki (Light and flashy)
+    10: (0, 128, 128)    # Teal
 }
-WALL_COLOR = (0, 0, 255)  # Red
+WALL_COLOR = (255, 0, 0)  # Red color for walls
 
 # Reading the model
 model_path = "detector_model_scripts/checkpoints/best.pt"
@@ -52,12 +52,12 @@ def draw_boxes(image, boxes, labels, class_type):
     for box, label in zip(boxes, labels):
         if class_type == 'room' and label in ROOM_COLORS:
             color = ROOM_COLORS[label]
-        elif class_type == 'wall' and label == 2:
+        elif class_type == 'wall' and label == 1:
             color = WALL_COLOR
         else:
             continue
         x1, y1, x2, y2 = box.astype(int)
-        cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
+        cv2.rectangle(image, (x1, y1), (x2, y2), color, 5)
     return image
 
 # Function to add a horizontally stacked legend for the rooms class as done in visualize.py script for the user to understand better.
@@ -103,18 +103,18 @@ def run_inference(image: Image.Image, class_type: str):
     scores = result['scores'].cpu().numpy()
 
     # Apply NMS before plotting the boxes
-    keep_indices = apply_nms(boxes, scores, iou_threshold=0.25)
+    keep_indices = apply_nms(boxes, scores, iou_threshold = 0.25)
     boxes = boxes[keep_indices]
     labels = labels[keep_indices]
     scores = scores[keep_indices]
 
     # Process image based on the user's query
     if class_type == 'wall':
-        selected_boxes = boxes[labels == 2]  
-        selected_labels = labels[labels == 2]
+        selected_boxes = boxes[labels == 1]  
+        selected_labels = labels[labels == 1]
         image_with_boxes = draw_boxes(image_np_bgr, selected_boxes, selected_labels, class_type)
     elif class_type == 'room':
-        room_labels = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        room_labels = [2, 3, 4, 5, 6, 7, 8, 9, 10]
         selected_boxes = boxes[np.isin(labels, room_labels)]
         selected_labels = labels[np.isin(labels, room_labels)]
         image_with_boxes = draw_boxes(image_np_bgr, selected_boxes, selected_labels, class_type)

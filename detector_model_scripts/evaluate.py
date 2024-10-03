@@ -25,7 +25,7 @@ from collections import defaultdict
 from tqdm import tqdm
 
 
-CLASSES = ["Background", "Outdoor", "Wall", "Kitchen", "Living Room", "Bed Room", "Bath", "Entry", "Railing", "Storage", "Garage", "Undefined"]
+CLASSES = ["Background", "Wall" ,"Kitchen", "Living Room", "Bed Room", "Bath", "Entry", "Railing", "Storage", "Garage", "Undefined"]
 
 # Helps in dealing with stacking images with different sizes
 def collate_fn(batch): 
@@ -45,7 +45,7 @@ def iou(box1, box2):
     union = area1 + area2 - intersection
     return intersection / union if union > 0 else 0
 # Function to apply non-max suppression. Intution is that the bounding boxes of walls and rooms should no interest to a large extent.
-def apply_nms(predictions, iou_threshold = 0.2):
+def apply_nms(predictions, iou_threshold = 0.25):
     keep = nms(predictions['boxes'], predictions['scores'], iou_threshold)
     predictions['boxes'] = predictions['boxes'][keep]
     predictions['labels'] = predictions['labels'][keep]
@@ -79,7 +79,7 @@ def calculate_metrics(pred_boxes, pred_labels, true_boxes, true_labels, iou_thre
     return tp, fp, fn
 
 # Function where we perform the evaluation of the model on the test dataset
-def evaluate_model(model, dataloader, device, iou_threshold = 0.2):
+def evaluate_model(model, dataloader, device, iou_threshold = 0.25):
     tp_dict = defaultdict(int)
     fp_dict = defaultdict(int)
     fn_dict = defaultdict(int)
@@ -103,13 +103,13 @@ def evaluate_model(model, dataloader, device, iou_threshold = 0.2):
             true_boxes = targets[i]['boxes'].cpu().numpy()
             true_labels = targets[i]['labels'].cpu().numpy()
 
-            tp, fp, fn = calculate_metrics(pred_boxes[pred_labels == 2], pred_labels[pred_labels == 2], true_boxes[true_labels == 2], true_labels[true_labels == 2])
+            tp, fp, fn = calculate_metrics(pred_boxes[pred_labels == 1], pred_labels[pred_labels == 1], true_boxes[true_labels == 1], true_labels[true_labels == 1])
             tp_dict['walls'] += tp
             fp_dict['walls'] += fp
             fn_dict['walls'] += fn
             # Treating index 1 and 3 to 11 as rooms
-            rooms_pred_indices = np.isin(pred_labels, [1, 3, 4, 5, 6, 7, 8, 9, 10, 11])
-            rooms_true_indices = np.isin(true_labels, [1, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+            rooms_pred_indices = np.isin(pred_labels, [2, 3, 4, 5, 6, 7, 8, 9, 10])
+            rooms_true_indices = np.isin(true_labels, [2, 3, 4, 5, 6, 7, 8, 9, 10])
 
             tp, fp, fn = calculate_metrics(pred_boxes[rooms_pred_indices], pred_labels[rooms_pred_indices], true_boxes[rooms_true_indices], true_labels[rooms_true_indices])
             tp_dict['rooms'] += tp
@@ -141,6 +141,7 @@ def main(args):
     # Load the model
     model = create_segmentation_model(len(CLASSES))
     model.load_state_dict(torch.load(args.model_path, map_location = device))
+    model.roi_heads.score_thresh = 0.25
     model.to(device)
     
     dataset = FloorplanSVG(args.data_directory, 'test.txt')
@@ -157,4 +158,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     main(args)
-

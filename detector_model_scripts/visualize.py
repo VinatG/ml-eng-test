@@ -20,27 +20,25 @@ import matplotlib.pyplot as plt
 from torchvision.ops import nms
 from model import create_segmentation_model
 
-CLASSES = ["Background", "Outdoor", "Wall", "Kitchen", "Living Room", "Bed Room", "Bath", "Entry", 
-           "Railing", "Storage", "Garage", "Undefined"]
+CLASSES = ["Background", "Wall" ,"Kitchen", "Living Room", "Bed Room", "Bath", "Entry", "Railing", "Storage", "Garage", "Undefined"]
 
 # Defining the class names and colors for the sub_classes of the rooms class
 ROOM_COLORS = {
-    1: (255, 255, 153),  # Light Yellow
-    3: (128, 128, 0),    # Olive Green
-    4: (128, 128, 128),  # Gray
-    5: (240, 128, 128),  # Light Coral
-    6: (173, 216, 230),  # Light Blue
-    7: (255, 182, 193),  # Light Pink
-    8: (255, 165, 0),    # Light Orange
-    9: (72, 209, 204),   # Light Aqua
-    10: (144, 238, 144), # Light Green
-    11: (255, 218, 185)  # Peach
+    #1: (255, 0, 0),      # Bright Red
+    2: (255, 165, 0),      # Orange
+    3: (0, 0, 255),      # Bright Blue
+    4: (255, 255, 0),    # Yellow (Flashy but distinct)
+    5: (255, 0, 255),     # Magenta
+    6: (255, 105, 180),  # Hot Pink
+    7: (0, 255, 255),    # Aqua
+    8: (128, 0, 128),    # Purple
+    9: (240, 230, 140),  # Khaki (Light and flashy)
+    10: (0, 128, 128)    # Teal
 }
-
 WALL_COLOR = (255, 0, 0)  # Red color for walls
 
 # Function to apply non-max suppression
-def apply_nms(boxes, scores, iou_threshold = 0.1):
+def apply_nms(boxes, scores, iou_threshold = 0.25):
     if isinstance(boxes, np.ndarray):
         boxes = torch.tensor(boxes)
     if isinstance(scores, np.ndarray):
@@ -50,12 +48,12 @@ def apply_nms(boxes, scores, iou_threshold = 0.1):
     return keep_indices
 
 # Function to draw bounding boxes on the image
-def draw_boxes(image, boxes, labels, scores, thickness = 2, is_rooms = False):
+def draw_boxes(image, boxes, labels, scores, thickness = 5, is_rooms = False):
     image = np.array(image)
     for box, label, score in zip(boxes, labels, scores):
         if is_rooms and label in ROOM_COLORS:
             color = ROOM_COLORS[label]  # Use the room color dictionary to fetch color for each class type
-        elif not is_rooms and label == 2:  
+        elif not is_rooms and label == 1:  
             color = WALL_COLOR
         else:
             continue  
@@ -74,17 +72,22 @@ def visualize(model_path, image_path, output_path, target_class):
     device = torch.device('cpu') # torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = create_segmentation_model(len(CLASSES))
     model.load_state_dict(torch.load(model_path, map_location = device))
+    model.roi_heads.score_thresh = 0.25
     model.eval()
 
     image = Image.open(image_path).convert("RGB")
     image_tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).unsqueeze(0).float().to(device)
+    
+    image_tensor = image_tensor / 255.0
 
     with torch.no_grad():
         result = model(image_tensor)[0]
+        
 
     boxes = result['boxes'].cpu().numpy()
     labels = result['labels'].cpu().numpy()
     scores = result['scores'].cpu().numpy()
+
 
     # Apply NMS to the predictions
     keep_indices = apply_nms(boxes, scores)
@@ -93,16 +96,16 @@ def visualize(model_path, image_path, output_path, target_class):
     scores = scores[keep_indices]
 
     if target_class == "walls":
-        selected_boxes = boxes[labels == 2]
-        selected_labels = labels[labels == 2]
-        selected_scores = scores[labels == 2]
-        visualized_image = draw_boxes(image, selected_boxes, selected_labels, selected_scores, thickness = 2, is_rooms = False)
+        selected_boxes = boxes[labels == 1]
+        selected_labels = labels[labels == 1]
+        selected_scores = scores[labels == 1]
+        visualized_image = draw_boxes(image, selected_boxes, selected_labels, selected_scores, thickness = 5, is_rooms = False)
     elif target_class == "rooms":
-        room_classes = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        room_classes = [2, 3, 4, 5, 6, 7, 8, 9, 10]
         selected_boxes = boxes[np.isin(labels, room_classes)]
         selected_labels = labels[np.isin(labels, room_classes)]
         selected_scores = scores[np.isin(labels, room_classes)]
-        visualized_image = draw_boxes(image, selected_boxes, selected_labels, selected_scores, thickness = 2, is_rooms = True)
+        visualized_image = draw_boxes(image, selected_boxes, selected_labels, selected_scores, thickness = 5, is_rooms = True)
 
     fig, ax = plt.subplots(1, figsize = (10, 10))
     ax.imshow(visualized_image)
@@ -126,4 +129,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     main(args)
-

@@ -21,7 +21,7 @@ Sample usage:
     --use-subset --save-dir detector_model_scripts/checkpoints --save-logs
 '''
 
-CLASSES = ["Background", "Outdoor", "Wall", "Kitchen", "Living Room", "Bed Room", "Bath", "Entry", "Railing", "Storage", "Garage", "Undefined"]
+CLASSES = ["Background", "Wall" ,"Kitchen", "Living Room", "Bed Room", "Bath", "Entry", "Railing", "Storage", "Garage", "Undefined"]
 
 from torch.utils.data import random_split
 import torch
@@ -108,7 +108,7 @@ def main(args):
         train_data_loader = DataLoader(train_normal_set, batch_size = args.batch_size, shuffle = True, collate_fn = collate_fn)
 
     valid_normal_set = FloorplanSVG(args.data_directory,'val.txt')
-    val_data_loader = DataLoader(valid_normal_set, batch_size = args.batch_size, shuffle=False, collate_fn = collate_fn)
+    val_data_loader = DataLoader(valid_normal_set, batch_size = args.batch_size, shuffle = False, collate_fn = collate_fn)
 
     # Load the model
     model = create_segmentation_model(num_classes = len(CLASSES))
@@ -148,13 +148,16 @@ def main(args):
             best_epoch = epoch
             torch.save(model.state_dict(), os.path.join(args.save_dir, "best.pt"))
 
-        # Save the model every 5th epoch
-        if (epoch + 1) % 5 == 0:
+        # Save the model every 3rd epoch
+        if (epoch + 1) % 3 == 0:
             torch.save(model.state_dict(), os.path.join(args.save_dir, f"maskrcnn_model_epoch_{epoch + 1}.pth"))
 
         print(f"Epoch [{epoch + 1}/{args.epochs}], Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Time Taken Training: {train_time:.2f} seconds, Time Taken Evaluation: {eval_time:.2f} seconds")
 
         lr_scheduler.step()
+        save_loss_graph(train_losses, val_losses, args.save_dir)
+        if args.save_logs:
+            save_loss_logs(train_losses, val_losses, args.save_dir)
 
     # Save train-val loss plots
     save_loss_graph(train_losses, val_losses, args.save_dir)

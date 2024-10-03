@@ -83,12 +83,9 @@ def visualize(model_path, image_path, output_path, target_class):
     with torch.no_grad():
         result = model(image_tensor)[0]
         
-
     boxes = result['boxes'].cpu().numpy()
     labels = result['labels'].cpu().numpy()
     scores = result['scores'].cpu().numpy()
-    print(labels)
-
 
     # Apply NMS to the predictions
     keep_indices = apply_nms(boxes, scores)

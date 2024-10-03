@@ -94,7 +94,7 @@ def run_inference(image: Image.Image, class_type: str):
     with torch.no_grad():
         try:
             result = model(image_tensor)[0]
-            print(result["labels"])
+            
         except:
             device = torch.device("cpu")
             model.to(device)

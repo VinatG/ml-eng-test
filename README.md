@@ -1,5 +1,10 @@
 # Machine Learning Engineer Test: Computer Vision and Object Detection
 
+## Updates
+
+- **Date: 04-10-2024**  
+  Made the required changes previously. Improved the indexing of the DataLoader. Focused on only using the "high_quality" folder from the CubiCasa5k dataset. Increased the amount of data for training for better results.
+
 ## Objective
 This test aims to assess your skills in computer vision and object detection, with a specific focus on detecting room walls and identifying rooms in architectural blueprints or pre-construction plans.
 
@@ -18,6 +23,25 @@ Scripts utilized for training, evaluating, and visualizing the model are present
 
 The API has been implemented using FastAPI for seamless inference of room and wall detection.
 
+## Results
+| Class      | TP   | FP   | FN   | Precision | Recall  |
+|------------|------|------|------|-----------|---------|
+| Walls      | 3102 | 968  | 1467 | 0.7622    | 0.6789  |
+| Rooms      | 1104 | 694  | 817  | 0.6140    | 0.5747  |
+
+## Visualization
+
+Here are sample images from the results:
+
+- **Input Image**:
+  ![Input Image](./images/input_image.jpg)
+
+- **Input Image Annotated with Predicted Walls**:
+  ![Walls Prediction](./images/input_walls_annotated.jpg)
+
+- **Input Image Annotated with Predicted Rooms**:
+  ![Rooms Prediction](./images/input_rooms_annotated.jpg)
+
 ## Installation
 
 1. Clone the repository:
@@ -30,7 +54,7 @@ cd ml-eng-test
 ```
 3. Download the trained model:  
 Due to size constraints, the trained model file is not included in this repository. Since this repository has been forked from another repository, Git LFS (Large File Storage) cannot be used to add larger files. You need to manually download the model using the following link:
-    - [Download the trained Mask R-CNN model](https://drive.google.com/file/d/1Bjvwy8UsQ3dAlcA3DigPjHODn-UaGUCu/view?usp=sharing)
+    - [Download the trained Mask R-CNN model](https://drive.google.com/file/d/1--NV98C78jFW9xq6i-RKc8VIeh6Sgi1s/view?usp=sharing)
 
 Once downloaded, place the model file in the `detector_model_scripts/checkpoints` directory.
 

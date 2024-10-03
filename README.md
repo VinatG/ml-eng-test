@@ -71,12 +71,12 @@ sudo docker run -d -p 3000:3000 --network="host" room-wall-detection-app
 ### Wall Detection
 Run the following curl command to perform wall detection:
 ```
-curl -X POST -F "image=@image.png" "http://localhost:3000/run-inference?type=wall" --output output.png
+curl -X POST -F "image=@image.png" "localhost:3000/run-inference?type=wall" --output output.png
 ```
 ### Room Detection
 Run the following curl command to perform room detection:
 ```
-curl -X POST -F "image=@image.png" "http://localhost:3000/run-inference?type=room" --output output.png
+curl -X POST -F "image=@image.png" "localhost:3000/run-inference?type=room" --output output.png
 ```
 
 

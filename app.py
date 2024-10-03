@@ -17,24 +17,24 @@ CLASSES = ["Background", "Wall" ,"Kitchen", "Living Room", "Bed Room", "Bath", "
 
 # Defining the class names and colors for the sub_classes of the rooms class
 ROOM_COLORS = {
-    #1: (255, 0, 0),      # Bright Red
-    2: (255, 165, 0),      # Orange
-    3: (0, 0, 255),      # Bright Blue
-    4: (255, 255, 0),    # Yellow (Flashy but distinct)
-    5: (255, 0, 255),     # Magenta
-    6: (255, 105, 180),  # Hot Pink
-    7: (0, 255, 255),    # Aqua
-    8: (128, 0, 128),    # Purple
-    9: (240, 230, 140),  # Khaki (Light and flashy)
-    10: (0, 128, 128)    # Teal
+    2: [255, 165, 0],      # Orange
+    3: [0, 0, 255],      # Bright Blue
+    4: [255, 255, 0],    # Yellow (Flashy but distinct)
+    5: [255, 0, 255],     # Magenta
+    6: [255, 105, 180],  # Hot Pink
+    7: [0, 255, 255],    # Aqua
+    8: [128, 0, 128],    # Purple
+    9: [240, 230, 140],  # Khaki (Light and flashy)
+    10: [0, 128, 128]    # Teal
 }
-WALL_COLOR = (255, 0, 0)  # Red color for walls
+WALL_COLOR = [255, 0, 0]  # Red color for walls
 
 # Reading the model
 model_path = "detector_model_scripts/checkpoints/best.pt"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = create_segmentation_model(len(CLASSES))
 model.load_state_dict(torch.load(model_path, map_location = device))
+model.roi_heads.score_thresh = 0.25
 model.to(device)
 model.eval()
 
@@ -51,9 +51,9 @@ def apply_nms(boxes, scores, iou_threshold = 0.25):
 def draw_boxes(image, boxes, labels, class_type):
     for box, label in zip(boxes, labels):
         if class_type == 'room' and label in ROOM_COLORS:
-            color = ROOM_COLORS[label]
+            color = ROOM_COLORS[label][::-1]
         elif class_type == 'wall' and label == 1:
-            color = WALL_COLOR
+            color = WALL_COLOR[::-1]
         else:
             continue
         x1, y1, x2, y2 = box.astype(int)
@@ -76,7 +76,7 @@ def add_legend(image):
         class_name = CLASSES[label]
         y_pos = 40 + idx * y_offset 
         cv2.putText(legend, f"{class_name}", (10, y_pos), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 0), 1) 
-        cv2.rectangle(legend, (legend_width - box_width - 10, y_pos - box_height // 2), (legend_width - 10, y_pos + box_height // 2), color, -1)
+        cv2.rectangle(legend, (legend_width - box_width - 10, y_pos - box_height // 2), (legend_width - 10, y_pos + box_height // 2), color[::-1], -1)
 
     # Horizontally stack the legend next to the image
     image_with_legend = np.hstack((image, legend))
@@ -89,10 +89,12 @@ def run_inference(image: Image.Image, class_type: str):
     image_np = np.array(image)
     image_np_bgr = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
     image_tensor = torch.from_numpy(image_np).permute(2, 0, 1).unsqueeze(0).float().to(device)
+    image_tensor = image_tensor / 255.0
     
     with torch.no_grad():
         try:
             result = model(image_tensor)[0]
+            print(result["labels"])
         except:
             device = torch.device("cpu")
             model.to(device)

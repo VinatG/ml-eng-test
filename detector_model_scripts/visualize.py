@@ -87,6 +87,7 @@ def visualize(model_path, image_path, output_path, target_class):
     boxes = result['boxes'].cpu().numpy()
     labels = result['labels'].cpu().numpy()
     scores = result['scores'].cpu().numpy()
+    print(labels)
 
 
     # Apply NMS to the predictions

@@ -34,13 +34,13 @@ The API has been implemented using FastAPI for seamless inference of room and wa
 Here are sample images from the results:
 
 - **Input Image**:
-  ![Input Image](./images/input_image.jpg)
+  ![Input Image](./images/input_image.png)
 
 - **Input Image Annotated with Predicted Walls**:
-  ![Walls Prediction](./images/input_walls_annotated.jpg)
+  ![Walls Prediction](./images/input_walls_annotated.png)
 
 - **Input Image Annotated with Predicted Rooms**:
-  ![Rooms Prediction](./images/input_rooms_annotated.jpg)
+  ![Rooms Prediction](./images/input_rooms_annotated.png)
 
 ## Installation
 

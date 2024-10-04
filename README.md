@@ -26,8 +26,8 @@ The API has been implemented using FastAPI for seamless inference of room and wa
 ## Results
 | Class      | TP   | FP   | FN   | Precision | Recall  |
 |------------|------|------|------|-----------|---------|
-| Walls      | 3102 | 968  | 1467 | 0.7622    | 0.6789  |
-| Rooms      | 1104 | 694  | 817  | 0.6140    | 0.5747  |
+| Walls      | 3057 | 1044  | 1512 | 0.7454    | 0.6691  |
+| Rooms      | 1106 | 663  | 815  | 0.6252    | 0.5757  |
 
 ## Visualization
 
@@ -54,7 +54,7 @@ cd ml-eng-test
 ```
 3. Download the trained model:  
 Due to size constraints, the trained model file is not included in this repository. Since this repository has been forked from another repository, Git LFS (Large File Storage) cannot be used to add larger files. You need to manually download the model using the following link:
-    - [Download the trained Mask R-CNN model](https://drive.google.com/file/d/1--NV98C78jFW9xq6i-RKc8VIeh6Sgi1s/view?usp=sharing)
+    - [Download the trained Mask R-CNN model](https://drive.google.com/file/d/1vgacDlyUYRdtKBYkQZ6jxR94Q7DZrfD8/view?usp=sharing)
 
 Once downloaded, place the model file in the `detector_model_scripts/checkpoints` directory.
 

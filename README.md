@@ -1,9 +1,12 @@
 # Machine Learning Engineer Test: Computer Vision and Object Detection
 
-## Updates
+## 🚨 **LATEST UPDATES** 🚨
 
-- **Date: 04-10-2024**  
-  Made the required changes previously. Improved the indexing of the DataLoader. Focused on only using the "high_quality" folder from the CubiCasa5k dataset. Increased the amount of data for training for better results.
+### 🗓 **Date: 04-10-2024**  
+ -🔧 **Changes Made**:  
+  - Improved DataLoader indexing and focused training on the "high_quality" folder from the CubiCasa5k dataset, repeating with 10 epochs.
+  - Increased training data for better model performance and added both quantitative and qualitative results.
+  - Added a legend to room visualizations, using distinct colors for different room classes.
 
 ## Objective
 This test aims to assess your skills in computer vision and object detection, with a specific focus on detecting room walls and identifying rooms in architectural blueprints or pre-construction plans.

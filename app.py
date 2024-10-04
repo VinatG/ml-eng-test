@@ -30,7 +30,7 @@ ROOM_COLORS = {
 WALL_COLOR = [255, 0, 0]  # Red color for walls
 
 # Reading the model
-model_path = "detector_model_scripts/checkpoints/best.pt"
+model_path = "detector_model_scripts/checkpoints/best.pth"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = create_segmentation_model(len(CLASSES))
 model.load_state_dict(torch.load(model_path, map_location = device))

@@ -3,7 +3,7 @@
 ## 🚨 **LATEST UPDATES** 🚨
 
 ### 🗓 **Date: 04-10-2024**  
- -🔧 **Changes Made**:  
+- 🔧 **Changes Made**: 
   - Improved DataLoader indexing and focused training on the "high_quality" folder from the CubiCasa5k dataset, repeating with 10 epochs.
   - Increased training data for better model performance and added both quantitative and qualitative results.
   - Added a legend to room visualizations, using distinct colors for different room classes.
